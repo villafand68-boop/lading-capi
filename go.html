@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redirigiendo...</title>
+</head>
+<body>
+<script>
+  const numero = '5491161182461';
+  const nombre = (sessionStorage.getItem('wa_nombre') || '').trim();
+
+  if (!nombre) {
+    window.location.href = 'index.html';
+  } else {
+    const mensaje = `Hola, soy ${nombre} y quiero más información`;
+    const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+    window.location.replace(url);
+  }
+</script>
+</body>
+</html>
