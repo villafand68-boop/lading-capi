@@ -6,15 +6,14 @@
 <title>GOLDEN BLACK</title>
 
 <script>
-  // 1. CONFIGURACIÓN INICIAL INMEDIATA
+  // 1. CONFIGURACIÓN DE IDENTIDAD (Inmediato)
   const PIXEL_ID = '790645863711552';
-  
   function generateEventId() {
     return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
   }
   const currentEventId = generateEventId();
 
-  // 2. PIXEL DE FACEBOOK (Carga estándar)
+  // 2. CARGA DEL PIXEL (Sin interferencias)
   !function(f,b,e,v,n,t,s)
   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -25,7 +24,7 @@
   'https://connect.facebook.net/en_US/fbevents.js');
 
   fbq('init', PIXEL_ID);
-  fbq('track', 'PageView'); // Esto DEBE disparar el PageView al cargar
+  fbq('track', 'PageView', {}, { eventID: currentEventId }); // PageView con ID de deduplicación
 </script>
 
 <style>
@@ -54,17 +53,17 @@
 
   <div class="zona-ingreso-v9">
     <input type="text" id="nombre_usuario" placeholder="Tu nombre" autocomplete="off">
-    <button id="btn-envio-camuflado" class="disparador-accion-x8">
+    <button type="button" id="btn-envio-camuflado" class="disparador-accion-x8">
       QUIERO CONTINUAR
     </button>
   </div>
 </div>
 
 <script>
-  // LÓGICA DEL BOTÓN (Separada para evitar errores)
-  const boton = document.getElementById('btn-envio-camuflado');
+  // 3. LÓGICA DEL BOTÓN
+  const botonFinal = document.getElementById('btn-envio-camuflado');
   
-  boton.onclick = function() {
+  botonFinal.onclick = function() {
     const inputNombre = document.getElementById('nombre_usuario');
     const valorNombre = inputNombre.value.trim();
 
@@ -73,23 +72,22 @@
       return;
     }
 
-    // Guardamos datos para la siguiente página
+    // Guardar para el Worker
     sessionStorage.setItem('wa_nombre', valorNombre);
     sessionStorage.setItem('wa_event_id', currentEventId);
 
-    // Enviamos el Lead al navegador
+    // Enviar Lead (Navegador)
     if (typeof fbq !== 'undefined') {
       fbq('track', 'Lead', {}, { eventID: currentEventId });
     }
 
-    // Cambiamos estado del botón
-    boton.innerText = "CARGANDO...";
-    boton.disabled = true;
+    botonFinal.innerText = "CARGANDO...";
+    botonFinal.disabled = true;
 
-    // Redirección con delay para asegurar que el navegador envíe los datos
+    // Pausa de seguridad para que el Pixel respire
     setTimeout(function() {
       window.location.href = 'go.html';
-    }, 700);
+    }, 800);
   };
 </script>
 </body>
