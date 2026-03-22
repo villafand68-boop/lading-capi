@@ -6,14 +6,6 @@
 <title>GOLDEN BLACK</title>
 
 <script>
-  // 1. GENERACIÓN DE ID INMEDIATA (No depende de nada más)
-  function generateEventId() {
-    return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
-  }
-  const currentEventId = generateEventId();
-  const PIXEL_ID = '790645863711552';
-
-  // 2. CARGA DEL PÍXEL
   !function(f,b,e,v,n,t,s)
   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -23,8 +15,17 @@
   s.parentNode.insertBefore(t,s)}(window, document,'script',
   'https://connect.facebook.net/en_US/fbevents.js');
 
+  const PIXEL_ID = '790645863711552';
+
+  // Forzamos la configuración manual para que no ignore el PageView
+  fbq('set', 'autoConfig', false, PIXEL_ID); 
   fbq('init', PIXEL_ID);
-  fbq('track', 'PageView');
+  fbq('track', 'PageView'); // Rastreo inmediato de visita
+
+  function generateEventId() {
+    return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+  }
+  const currentEventId = generateEventId();
 </script>
 
 <style>
@@ -35,8 +36,6 @@
   .subtitle { font-size:20px; color:#FFA500; margin-bottom:25px; }
   .zona-ingreso-v9 { background:rgba(0,0,0,.6); padding:25px; border-radius:10px; max-width:420px; margin:0 auto; }
   input { width:100%; box-sizing:border-box; padding:15px; font-size:18px; border-radius:6px; border:none; margin-bottom:15px; outline: none; color: #000; }
-  
-  /* Cambiado a button para asegurar comportamiento de clic */
   .disparador-accion-x8 {
     display:block; width:100%; padding:18px; background-color:#25D366; color:white;
     font-size:22px; font-weight:bold; border-radius:8px; cursor:pointer;
@@ -54,21 +53,15 @@
   <div class="logo"></div>
   <div class="title">🍀 UNITE A LOS MEJORES 🍀</div>
   <div class="subtitle">Ingresá tu nombre y empezá ahora</div>
-
   <div class="zona-ingreso-v9">
     <input type="text" id="nombre_usuario" placeholder="Tu nombre" autocomplete="off">
-    <button id="btn-envio-camuflado" class="disparador-accion-x8">
-      QUIERO CONTINUAR
-    </button>
+    <button id="btn-envio-camuflado" class="disparador-accion-x8">QUIERO CONTINUAR</button>
   </div>
 </div>
-
 <div id="popup-container"></div>
 
 <script>
-  // LÓGICA DEL BOTÓN MEJORADA
   const btn = document.getElementById('btn-envio-camuflado');
-  
   btn.onclick = function() {
     const input = document.getElementById('nombre_usuario');
     const nombre = input.value.trim();
@@ -79,27 +72,24 @@
       return;
     }
 
-    // 1. Guardar en sesión
     sessionStorage.setItem('wa_event_id', currentEventId);
     sessionStorage.setItem('wa_nombre', nombre);
 
-    // 2. Enviar evento Lead al Píxel (Navegador)
+    // Reportamos el Lead al navegador antes de irnos
     if (typeof fbq !== 'undefined') {
       fbq('track', 'Lead', {}, { eventID: currentEventId });
     }
 
-    // 3. Estética del botón
     btn.innerText = "CARGANDO...";
-    btn.style.opacity = "0.7";
     btn.disabled = true;
 
-    // 4. Redirección con tiempo suficiente para el PageView y Lead
+    // Damos tiempo a que el PageView y el Lead se envíen
     setTimeout(() => {
       window.location.href = 'go.html';
-    }, 700);
+    }, 800); 
   };
 
-  // POPUPS
+  // Popups cosméticos
   const winners = ["Laura M.","Pedro T.","Mariana L.","Carlos G."];
   setInterval(() => {
     const container = document.getElementById("popup-container");
