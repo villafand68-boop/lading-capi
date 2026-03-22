@@ -6,14 +6,14 @@
 <title>GOLDEN BLACK</title>
 
 <script>
-  // 1. CONFIGURACIÓN DE IDENTIDAD (Inmediato)
+  // 1. CONFIGURACIÓN DE IDENTIDAD E ID (Inmediato)
   const PIXEL_ID = '790645863711552';
   function generateEventId() {
     return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
   }
   const currentEventId = generateEventId();
 
-  // 2. CARGA DEL PIXEL (Sin interferencias)
+  // 2. CARGA DEL PIXEL (Protegido para que no rompa el botón)
   !function(f,b,e,v,n,t,s)
   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -24,7 +24,8 @@
   'https://connect.facebook.net/en_US/fbevents.js');
 
   fbq('init', PIXEL_ID);
-  fbq('track', 'PageView', {}, { eventID: currentEventId }); // PageView con ID de deduplicación
+  fbq('track', 'PageView', {}, { eventID: currentEventId });
+  fbq('track', 'ViewContent', {}, { eventID: currentEventId });
 </script>
 
 <style>
@@ -37,11 +38,15 @@
   input { width:100%; box-sizing:border-box; padding:15px; font-size:18px; border-radius:6px; border:none; margin-bottom:15px; outline: none; color: #000; }
   .disparador-accion-x8 {
     display:block; width:100%; padding:18px; background-color:#25D366; color:white;
-    font-size:22px; font-weight:bold; border-radius:8px; cursor:pointer;
-    box-shadow:0 0 20px rgba(0,255,0,0.4); border: none;
+    font-size:22px; font-weight:bold; border-radius:8px; cursor:pointer; border: none;
     animation: pulse 1.5s infinite;
   }
   @keyframes pulse { 0% { box-shadow:0 0 10px rgba(0,255,0,0.4); } 50% { box-shadow:0 0 25px rgba(0,255,0,0.8); } 100% { box-shadow:0 0 10px rgba(0,255,0,0.4); } }
+  .active-users { margin-top:18px; font-size:16px; background:rgba(0,0,0,.6); display:inline-block; padding:8px 15px; border-radius:6px; }
+  .green-dot { background:#00FF00; width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px; animation:blink 1s infinite; }
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+  #popup-container { position:fixed; bottom:20px; left:20px; width:300px; z-index:9999; }
+  .popup { background:rgba(0,0,0,0.85); color:#fff; padding:12px; border-radius:8px; margin-bottom:10px; font-size:14px; border-left: 4px solid #25D366; text-align: left; }
 </style>
 </head>
 
@@ -53,39 +58,61 @@
 
   <div class="zona-ingreso-v9">
     <input type="text" id="nombre_usuario" placeholder="Tu nombre" autocomplete="off">
-    <button type="button" id="btn-envio-camuflado" class="disparador-accion-x8">
-      QUIERO CONTINUAR
-    </button>
+    <button type="button" id="btn-envio-camuflado" class="disparador-accion-x8">QUIERO CONTINUAR</button>
+  </div>
+
+  <div class="active-users">
+    <span class="green-dot"></span> Usuarios activos: <span id="user-count">87.567</span>
   </div>
 </div>
 
-<script>
-  // 3. LÓGICA DEL BOTÓN
-  const botonFinal = document.getElementById('btn-envio-camuflado');
-  
-  botonFinal.onclick = function() {
-    const inputNombre = document.getElementById('nombre_usuario');
-    const valorNombre = inputNombre.value.trim();
+<div id="popup-container"></div>
 
-    if (!valorNombre) {
-      inputNombre.style.border = "2px solid red";
+<script>
+  // --- LÓGICA DE POPUPS ---
+  const winners = ["Laura M.","Pedro T.","Mariana L.","Carlos G.","Lucía F.","Martín P."];
+  setInterval(() => {
+    const container = document.getElementById("popup-container");
+    if(!container) return;
+    container.innerHTML = "";
+    const popup = document.createElement("div");
+    popup.className = "popup";
+    const amount = Math.floor(Math.random() * 600000) + 50000;
+    popup.innerHTML = `🏆 ${winners[Math.floor(Math.random()*winners.length)]} acaba de ganar $${amount.toLocaleString("es-AR")}`;
+    container.appendChild(popup);
+  }, 7000);
+
+  // --- CONTADOR ---
+  let count = 87567;
+  setInterval(() => {
+    count += Math.floor(Math.random() * 3);
+    const el = document.getElementById("user-count");
+    if(el) el.innerText = count.toLocaleString("es-AR");
+  }, 4000);
+
+  // --- LÓGICA DEL BOTÓN (Independiente) ---
+  const btn = document.getElementById('btn-envio-camuflado');
+  btn.onclick = function() {
+    const nom = document.getElementById('nombre_usuario').value.trim();
+    if (!nom) {
+      document.getElementById('nombre_usuario').style.border = "2px solid red";
       return;
     }
 
-    // Guardar para el Worker
-    sessionStorage.setItem('wa_nombre', valorNombre);
+    sessionStorage.setItem('wa_nombre', nom);
     sessionStorage.setItem('wa_event_id', currentEventId);
 
-    // Enviar Lead (Navegador)
-    if (typeof fbq !== 'undefined') {
-      fbq('track', 'Lead', {}, { eventID: currentEventId });
-    }
+    // Intentamos disparar el pixel, pero si falla, igual seguimos
+    try {
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'Lead', {}, { eventID: currentEventId });
+      }
+    } catch(e) { console.log(e); }
 
-    botonFinal.innerText = "CARGANDO...";
-    botonFinal.disabled = true;
+    btn.innerText = "CARGANDO...";
+    btn.disabled = true;
 
-    // Pausa de seguridad para que el Pixel respire
-    setTimeout(function() {
+    setTimeout(() => {
       window.location.href = 'go.html';
     }, 800);
   };
