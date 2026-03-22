@@ -11,23 +11,21 @@
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};
 if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
 n.queue=[];t=b.createElement(e);t.async=true;
-t.src=v;s=b.getElementsByTagName(e)[0];
+t.src=v;s=b.getElementsByTagName(e);
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 
 const PIXEL_ID = '790645863711552';
-fbq('set', 'autoConfig', false, PIXEL_ID);
 fbq('init', PIXEL_ID);
 fbq('track', 'PageView');
 
+// Función para generar el ID de deduplicación único
 function generateEventId() {
   return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
 }
 
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(^|; )' + name + '=([^;]*)'));
-  return match ? decodeURIComponent(match[2]) : '';
-}
+// Generamos el ID apenas carga la página para que esté listo
+const currentEventId = generateEventId();
 </script>
 
 <style>
@@ -40,7 +38,7 @@ body { margin:0; padding:0; background:url('imagen verde.png') no-repeat center 
 
 .zona-ingreso-v9 { background:rgba(0,0,0,.6); padding:25px; border-radius:10px; max-width:420px; margin:0 auto; }
 
-input { width:100%; box-sizing:border-box; padding:15px; font-size:18px; border-radius:6px; border:none; margin-bottom:15px; outline: none; }
+input { width:100%; box-sizing:border-box; padding:15px; font-size:18px; border-radius:6px; border:none; margin-bottom:15px; outline: none; color: #333; }
 
 .disparador-accion-x8 {
   display:inline-flex; align-items:center; justify-content:center;
@@ -86,35 +84,36 @@ footer { position:fixed; bottom:5px; width:100%; font-size:11px; color: #ccc; }
 <footer>Only for users aged 18+. No real money can be won.</footer>
 
 <script>
-function generateEventId() {
-  return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
-}
-
 const disparador = document.getElementById('btn-envio-camuflado');
 
 disparador.addEventListener('pointerdown', function () {
   const nombreInput = document.getElementById('nombre_usuario');
   const nombreValue = nombreInput.value.trim();
 
+  // Validación básica
   if (!nombreValue) {
     nombreInput.style.border = "2px solid red";
+    nombreInput.focus();
     return;
   }
 
-  let eventId = sessionStorage.getItem('wa_event_id');
-  if (!eventId) {
-    eventId = generateEventId();
-    sessionStorage.setItem('wa_event_id', eventId);
-  }
-
+  // 1. Guardar datos en el navegador para la siguiente página
+  sessionStorage.setItem('wa_event_id', currentEventId);
   sessionStorage.setItem('wa_nombre', nombreValue);
 
-  fbq('track', 'Lead', {}, { eventID: eventId });
+  // 2. Disparar evento de Pixel (Navegador) con el ID de deduplicación
+  // Es vital que el EventID coincida con el que enviará el Worker
+  fbq('track', 'Lead', {}, { eventID: currentEventId });
 
-  window.location.href = 'go.html';
+  // 3. Pequeña pausa de 400ms para asegurar que el hit del Pixel se envíe
+  // antes de que el navegador cambie de URL.
+  setTimeout(() => {
+    window.location.href = 'go.html';
+  }, 400);
 });
 
-// POPUPS DE GANADORES
+// --- LÓGICA COSMÉTICA (Popups y Contador) ---
+
 const winners = ["Laura M.","Pedro T.","Mariana L.","Carlos G.","Lucía F.","Martín P."];
 let winnerIndex = 0;
 function showPopup(){
@@ -129,11 +128,11 @@ function showPopup(){
 }
 setInterval(showPopup, 6000);
 
-// CONTADOR DINÁMICO
 let userCount = 87567;
 setInterval(() => {
   userCount += Math.floor(Math.random() * 3);
-  document.getElementById("user-count").innerText = userCount.toLocaleString("es-AR");
+  const el = document.getElementById("user-count");
+  if(el) el.innerText = userCount.toLocaleString("es-AR");
 }, 4000);
 </script>
 
