@@ -6,6 +6,15 @@
 <title>GOLDEN BLACK</title>
 
 <script>
+  // 1. CONFIGURACIÓN INICIAL INMEDIATA
+  const PIXEL_ID = '790645863711552';
+  
+  function generateEventId() {
+    return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+  }
+  const currentEventId = generateEventId();
+
+  // 2. PIXEL DE FACEBOOK (Carga estándar)
   !function(f,b,e,v,n,t,s)
   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -15,17 +24,8 @@
   s.parentNode.insertBefore(t,s)}(window, document,'script',
   'https://connect.facebook.net/en_US/fbevents.js');
 
-  const PIXEL_ID = '790645863711552';
-
-  // Forzamos la configuración manual para que no ignore el PageView
-  fbq('set', 'autoConfig', false, PIXEL_ID); 
   fbq('init', PIXEL_ID);
-  fbq('track', 'PageView'); // Rastreo inmediato de visita
-
-  function generateEventId() {
-    return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
-  }
-  const currentEventId = generateEventId();
+  fbq('track', 'PageView'); // Esto DEBE disparar el PageView al cargar
 </script>
 
 <style>
@@ -43,8 +43,6 @@
     animation: pulse 1.5s infinite;
   }
   @keyframes pulse { 0% { box-shadow:0 0 10px rgba(0,255,0,0.4); } 50% { box-shadow:0 0 25px rgba(0,255,0,0.8); } 100% { box-shadow:0 0 10px rgba(0,255,0,0.4); } }
-  #popup-container { position:fixed; bottom:20px; left:20px; width:300px; z-index:9999; }
-  .popup { background:rgba(0,0,0,0.85); color:#fff; padding:12px; border-radius:8px; margin-bottom:10px; font-size:14px; border-left: 4px solid #25D366; text-align: left; }
 </style>
 </head>
 
@@ -53,53 +51,46 @@
   <div class="logo"></div>
   <div class="title">🍀 UNITE A LOS MEJORES 🍀</div>
   <div class="subtitle">Ingresá tu nombre y empezá ahora</div>
+
   <div class="zona-ingreso-v9">
     <input type="text" id="nombre_usuario" placeholder="Tu nombre" autocomplete="off">
-    <button id="btn-envio-camuflado" class="disparador-accion-x8">QUIERO CONTINUAR</button>
+    <button id="btn-envio-camuflado" class="disparador-accion-x8">
+      QUIERO CONTINUAR
+    </button>
   </div>
 </div>
-<div id="popup-container"></div>
 
 <script>
-  const btn = document.getElementById('btn-envio-camuflado');
-  btn.onclick = function() {
-    const input = document.getElementById('nombre_usuario');
-    const nombre = input.value.trim();
+  // LÓGICA DEL BOTÓN (Separada para evitar errores)
+  const boton = document.getElementById('btn-envio-camuflado');
+  
+  boton.onclick = function() {
+    const inputNombre = document.getElementById('nombre_usuario');
+    const valorNombre = inputNombre.value.trim();
 
-    if (!nombre) {
-      input.style.border = "2px solid red";
-      input.focus();
+    if (!valorNombre) {
+      inputNombre.style.border = "2px solid red";
       return;
     }
 
+    // Guardamos datos para la siguiente página
+    sessionStorage.setItem('wa_nombre', valorNombre);
     sessionStorage.setItem('wa_event_id', currentEventId);
-    sessionStorage.setItem('wa_nombre', nombre);
 
-    // Reportamos el Lead al navegador antes de irnos
+    // Enviamos el Lead al navegador
     if (typeof fbq !== 'undefined') {
       fbq('track', 'Lead', {}, { eventID: currentEventId });
     }
 
-    btn.innerText = "CARGANDO...";
-    btn.disabled = true;
+    // Cambiamos estado del botón
+    boton.innerText = "CARGANDO...";
+    boton.disabled = true;
 
-    // Damos tiempo a que el PageView y el Lead se envíen
-    setTimeout(() => {
+    // Redirección con delay para asegurar que el navegador envíe los datos
+    setTimeout(function() {
       window.location.href = 'go.html';
-    }, 800); 
+    }, 700);
   };
-
-  // Popups cosméticos
-  const winners = ["Laura M.","Pedro T.","Mariana L.","Carlos G."];
-  setInterval(() => {
-    const container = document.getElementById("popup-container");
-    if(!container) return;
-    container.innerHTML = "";
-    const popup = document.createElement("div");
-    popup.className = "popup";
-    popup.innerHTML = `🏆 ${winners[Math.floor(Math.random()*winners.length)]} ganó $${Math.floor(Math.random()*500000).toLocaleString()}`;
-    container.appendChild(popup);
-  }, 6000);
 </script>
 </body>
 </html>
