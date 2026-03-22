@@ -66,7 +66,7 @@ footer { position:fixed; bottom:5px; width:100%; font-size:11px; color: #ccc; }
 <div class="container">
   <div class="logo"></div>
 
-  <div class="title">🍀 UNITE A LOS GANADORES 🍀</div>
+  <div class="title">🍀 UNITE A LOS MEJORES 🍀</div>
   <div class="subtitle">Ingresá tu nombre y empezá ahora</div>
 
   <div class="zona-ingreso-v9">
@@ -112,7 +112,7 @@ disparador.addEventListener('pointerdown', async function () {
   fbq('track', 'Lead', {}, { eventID: eventId });
 
   try {
-    await fetch('/api/sendEvent', {
+    await fetch('https://api-meta.daniyons1996.workers.dev/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       keepalive: true,
