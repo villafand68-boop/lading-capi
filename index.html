@@ -6,45 +6,46 @@
 <title>GOLDEN BLACK</title>
 
 <script>
-// 1. CONFIGURACIÓN INICIAL
-const PIXEL_ID = '790645863711552';
+  // 1. GENERACIÓN DE ID INMEDIATA (No depende de nada más)
+  function generateEventId() {
+    return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+  }
+  const currentEventId = generateEventId();
+  const PIXEL_ID = '790645863711552';
 
-function generateEventId() {
-  return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
-}
-const currentEventId = generateEventId();
+  // 2. CARGA DEL PÍXEL
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=true;
+  t.src=v;s=b.getElementsByTagName(e);
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
 
-// 2. PIXEL DE FACEBOOK
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=true;
-t.src=v;s=b.getElementsByTagName(e);
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-
-fbq('init', PIXEL_ID);
-fbq('track', 'PageView');
+  fbq('init', PIXEL_ID);
+  fbq('track', 'PageView');
 </script>
 
 <style>
-body { margin:0; padding:0; background:url('imagen verde.png') no-repeat center center fixed; background-size:cover; font-family:Arial,sans-serif; text-align:center; color:white; background-color: #051a05; }
-.container { padding:50px 20px; }
-.logo{ width:280px; height:280px; background:url('logo_golden_black.png') no-repeat center; background-size:cover; border-radius:50%; margin:40px auto 20px; box-shadow:0 0 25px rgba(255,215,0,.6); }
-.title { font-size:32px; font-weight:bold; margin:20px 0; }
-.subtitle { font-size:20px; color:#FFA500; margin-bottom:25px; }
-.zona-ingreso-v9 { background:rgba(0,0,0,.6); padding:25px; border-radius:10px; max-width:420px; margin:0 auto; }
-input { width:100%; box-sizing:border-box; padding:15px; font-size:18px; border-radius:6px; border:none; margin-bottom:15px; outline: none; color: #000; }
-.disparador-accion-x8 {
-  display:block; width:100%; padding:18px; background-color:#25D366; color:white;
-  font-size:22px; font-weight:bold; border-radius:8px; cursor:pointer;
-  box-shadow:0 0 20px rgba(0,255,0,0.4); text-decoration: none;
-  animation: pulse 1.5s infinite;
-}
-@keyframes pulse { 0% { box-shadow:0 0 10px rgba(0,255,0,0.4); } 50% { box-shadow:0 0 25px rgba(0,255,0,0.8); } 100% { box-shadow:0 0 10px rgba(0,255,0,0.4); } }
-#popup-container { position:fixed; bottom:20px; left:20px; width:300px; z-index:9999; }
-.popup { background:rgba(0,0,0,0.85); color:#fff; padding:12px; border-radius:8px; margin-bottom:10px; font-size:14px; border-left: 4px solid #25D366; }
+  body { margin:0; padding:0; background:url('imagen verde.png') no-repeat center center fixed; background-size:cover; font-family:Arial,sans-serif; text-align:center; color:white; background-color: #051a05; }
+  .container { padding:50px 20px; }
+  .logo{ width:280px; height:280px; background:url('logo_golden_black.png') no-repeat center; background-size:cover; border-radius:50%; margin:40px auto 20px; box-shadow:0 0 25px rgba(255,215,0,.6); }
+  .title { font-size:32px; font-weight:bold; margin:20px 0; }
+  .subtitle { font-size:20px; color:#FFA500; margin-bottom:25px; }
+  .zona-ingreso-v9 { background:rgba(0,0,0,.6); padding:25px; border-radius:10px; max-width:420px; margin:0 auto; }
+  input { width:100%; box-sizing:border-box; padding:15px; font-size:18px; border-radius:6px; border:none; margin-bottom:15px; outline: none; color: #000; }
+  
+  /* Cambiado a button para asegurar comportamiento de clic */
+  .disparador-accion-x8 {
+    display:block; width:100%; padding:18px; background-color:#25D366; color:white;
+    font-size:22px; font-weight:bold; border-radius:8px; cursor:pointer;
+    box-shadow:0 0 20px rgba(0,255,0,0.4); border: none;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 0% { box-shadow:0 0 10px rgba(0,255,0,0.4); } 50% { box-shadow:0 0 25px rgba(0,255,0,0.8); } 100% { box-shadow:0 0 10px rgba(0,255,0,0.4); } }
+  #popup-container { position:fixed; bottom:20px; left:20px; width:300px; z-index:9999; }
+  .popup { background:rgba(0,0,0,0.85); color:#fff; padding:12px; border-radius:8px; margin-bottom:10px; font-size:14px; border-left: 4px solid #25D366; text-align: left; }
 </style>
 </head>
 
@@ -56,7 +57,7 @@ input { width:100%; box-sizing:border-box; padding:15px; font-size:18px; border-
 
   <div class="zona-ingreso-v9">
     <input type="text" id="nombre_usuario" placeholder="Tu nombre" autocomplete="off">
-    <button id="btn-envio-camuflado" class="disparador-accion-x8" style="border:none;">
+    <button id="btn-envio-camuflado" class="disparador-accion-x8">
       QUIERO CONTINUAR
     </button>
   </div>
@@ -65,43 +66,50 @@ input { width:100%; box-sizing:border-box; padding:15px; font-size:18px; border-
 <div id="popup-container"></div>
 
 <script>
-// LÓGICA DEL BOTÓN
-document.getElementById('btn-envio-camuflado').onclick = function() {
-    const nombreInput = document.getElementById('nombre_usuario');
-    const nombre = nombreInput.value.trim();
+  // LÓGICA DEL BOTÓN MEJORADA
+  const btn = document.getElementById('btn-envio-camuflado');
+  
+  btn.onclick = function() {
+    const input = document.getElementById('nombre_usuario');
+    const nombre = input.value.trim();
 
     if (!nombre) {
-        nombreInput.style.border = "2px solid red";
-        return;
+      input.style.border = "2px solid red";
+      input.focus();
+      return;
     }
 
-    // Guardar datos
-    sessionStorage.setItem('wa_nombre', nombre);
+    // 1. Guardar en sesión
     sessionStorage.setItem('wa_event_id', currentEventId);
+    sessionStorage.setItem('wa_nombre', nombre);
 
-    // Track Pixel
-    fbq('track', 'Lead', {}, { eventID: currentEventId });
+    // 2. Enviar evento Lead al Píxel (Navegador)
+    if (typeof fbq !== 'undefined') {
+      fbq('track', 'Lead', {}, { eventID: currentEventId });
+    }
 
-    // Ir a la siguiente página
-    this.innerText = "CARGANDO...";
-    this.disabled = true;
+    // 3. Estética del botón
+    btn.innerText = "CARGANDO...";
+    btn.style.opacity = "0.7";
+    btn.disabled = true;
 
-    setTimeout(function() {
-        window.location.href = 'go.html';
-    }, 500);
-};
+    // 4. Redirección con tiempo suficiente para el PageView y Lead
+    setTimeout(() => {
+      window.location.href = 'go.html';
+    }, 700);
+  };
 
-// POPUPS
-const winners = ["Laura M.","Pedro T.","Mariana L.","Carlos G."];
-setInterval(function() {
+  // POPUPS
+  const winners = ["Laura M.","Pedro T.","Mariana L.","Carlos G."];
+  setInterval(() => {
     const container = document.getElementById("popup-container");
+    if(!container) return;
     container.innerHTML = "";
     const popup = document.createElement("div");
     popup.className = "popup";
-    popup.innerHTML = `🏆 ${winners[Math.floor(Math.random()*winners.length)]} acaba de ganar $${Math.floor(Math.random()*500000).toLocaleString()}`;
+    popup.innerHTML = `🏆 ${winners[Math.floor(Math.random()*winners.length)]} ganó $${Math.floor(Math.random()*500000).toLocaleString()}`;
     container.appendChild(popup);
-}, 6000);
+  }, 6000);
 </script>
-
 </body>
 </html>
