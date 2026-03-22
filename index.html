@@ -92,7 +92,7 @@ function generateEventId() {
 
 const disparador = document.getElementById('btn-envio-camuflado');
 
-disparador.addEventListener('pointerdown', async function () {
+disparador.addEventListener('pointerdown', function () {
   const nombreInput = document.getElementById('nombre_usuario');
   const nombreValue = nombreInput.value.trim();
 
@@ -110,22 +110,6 @@ disparador.addEventListener('pointerdown', async function () {
   sessionStorage.setItem('wa_nombre', nombreValue);
 
   fbq('track', 'Lead', {}, { eventID: eventId });
-
-  try {
-    await fetch('https://api-meta.daniyons1996.workers.dev/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      keepalive: true,
-      body: JSON.stringify({
-        event_name: 'Lead',
-        event_id: eventId,
-        page_url: window.location.href,
-        client_user_agent: navigator.userAgent
-      })
-    });
-  } catch (e) {
-    console.error(e);
-  }
 
   window.location.href = 'go.html';
 });
