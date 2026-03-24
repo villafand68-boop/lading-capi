@@ -32,50 +32,57 @@
   <div class="loader"></div>
 
 <script>
+  // Configuración del destino
   const numero = '5491161182461';
   const nombre = (sessionStorage.getItem('wa_nombre') || '').trim();
   const eventId = sessionStorage.getItem('wa_event_id');
 
+  // Función mejorada y segura para obtener cookies (fbp/fbc)
   function getCookie(name) {
-    const match = document.cookie.match(new RegExp('(^|; )' + name + '=([^;]*)'));
-    return match ? decodeURIComponent(match[2]) : null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
   }
 
   async function procesarYRedirigir() {
+    // Validación de datos necesarios
     if (!nombre || !eventId) {
       window.location.href = 'index.html';
       return;
     }
 
     try {
+      // Enviamos el evento al Worker
       await fetch("https://api-meta.daniyons1996.workers.dev/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        keepalive: true,
+        keepalive: true, // Ayuda a que la petición no se corte al navegar
         body: JSON.stringify({
           event_id: eventId,
           event_name: "Lead",
           nombre: nombre,
-          page_url: window.location.href,
-          client_user_agent: navigator.userAgent,
+          page_url: window.location.href, // Envía tu dominio real automáticamente
           fbp: getCookie('_fbp'),
           fbc: getCookie('_fbc')
         })
       });
-
-      console.log("Evento de servidor enviado con éxito");
+      console.log("Evento enviado al servidor");
     } catch (error) {
-      console.error("Error al contactar al Worker:", error);
+      console.error("Error en la comunicación con el Worker:", error);
     }
 
+    // Preparación de WhatsApp
     const mensaje = `Hola, soy ${nombre} y quiero más información`;
     const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
 
+    // Esperamos 1.2 segundos para asegurar que el Worker terminó el proceso con Meta
     setTimeout(() => {
       window.location.replace(url);
-    }, 800);
+    }, 1200);
   }
 
+  // Iniciar proceso
   procesarYRedirigir();
 </script>
 </body>
