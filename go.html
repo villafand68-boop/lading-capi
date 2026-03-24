@@ -5,84 +5,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Redirigiendo...</title>
   <style>
-    body {
-      background-color: #051a05;
-      color: white;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .loader {
-      border: 4px solid rgba(255,255,255,0.1);
-      border-left-color: #25D366;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    body { background-color: #051a05; color: white; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .loader { border: 4px solid rgba(255,255,255,0.1); border-left-color: #25D366; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
   <div class="loader"></div>
 
 <script>
-  // Configuración del destino
+  // Configuración
   const numero = '5491161182461';
   const nombre = (sessionStorage.getItem('wa_nombre') || '').trim();
   const eventId = sessionStorage.getItem('wa_event_id');
 
-  // Función mejorada y segura para obtener cookies (fbp/fbc)
+  // Función para obtener cookies técnicas de Facebook (fbp/fbc)
   function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
+    const match = document.cookie.match(new RegExp('(^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match) : null;
   }
 
   async function procesarYRedirigir() {
-    // Validación de datos necesarios
-    if (!nombre || !eventId) {
+    if (!nombre) {
       window.location.href = 'index.html';
       return;
     }
 
     try {
-      // Enviamos el evento al Worker
+      // Enviamos la señal al Worker y ESPERAMOS la respuesta
       await fetch("https://api-meta.daniyons1996.workers.dev/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        keepalive: true, // Ayuda a que la petición no se corte al navegar
         body: JSON.stringify({
           event_id: eventId,
           event_name: "Lead",
           nombre: nombre,
-          page_url: window.location.href, // Envía tu dominio real automáticamente
           fbp: getCookie('_fbp'),
           fbc: getCookie('_fbc')
         })
       });
-      console.log("Evento enviado al servidor");
+      console.log("Evento de servidor enviado con éxito");
     } catch (error) {
-      console.error("Error en la comunicación con el Worker:", error);
+      console.error("Error al contactar al Worker:", error);
+      // Aun si falla, seguimos adelante para no perder al cliente
     }
 
-    // Preparación de WhatsApp
+    // Construcción del mensaje y redirección final
     const mensaje = `Hola, soy ${nombre} y quiero más información`;
     const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
-
-    // Esperamos 1.2 segundos para asegurar que el Worker terminó el proceso con Meta
-    setTimeout(() => {
-      window.location.replace(url);
-    }, 1200);
+    
+    // Usamos replace para que el usuario no pueda volver atrás a esta página de carga
+    window.location.replace(url);
   }
 
-  // Iniciar proceso
+  // Ejecutar al cargar la página
   procesarYRedirigir();
 </script>
 </body>
