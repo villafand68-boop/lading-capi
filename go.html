@@ -14,51 +14,59 @@
   <div class="loader"></div>
 
 <script>
-  // Configuración
+  // 1. Configuración de datos
   const numero = '5491161182461';
   const nombre = (sessionStorage.getItem('wa_nombre') || '').trim();
   const eventId = sessionStorage.getItem('wa_event_id');
 
-  // Función para obtener cookies técnicas de Facebook (fbp/fbc)
+  // 2. Función corregida para capturar cookies de Meta
   function getCookie(name) {
-    const match = document.cookie.match(new RegExp('(^|; )' + name + '=([^;]*)'));
-    return match ? decodeURIComponent(match) : null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
   }
 
   async function procesarYRedirigir() {
-    if (!nombre) {
+    // Si no hay datos, volvemos al inicio para evitar eventos vacíos
+    if (!nombre || !eventId) {
       window.location.href = 'index.html';
       return;
     }
 
     try {
-      // Enviamos la señal al Worker y ESPERAMOS la respuesta
-      await fetch("https://api-meta.daniyons1996.workers.dev/", {
+      // 3. Envío al Worker con timeout de seguridad
+      const response = await fetch("https://api-meta.daniyons1996.workers.dev/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        keepalive: true, // Crucial: mantiene la petición viva si la página cambia
         body: JSON.stringify({
           event_id: eventId,
           event_name: "Lead",
           nombre: nombre,
+          page_url: window.location.href,
           fbp: getCookie('_fbp'),
           fbc: getCookie('_fbc')
         })
       });
-      console.log("Evento de servidor enviado con éxito");
+
+      const resultado = await response.json();
+      console.log("Respuesta del servidor:", resultado);
+
     } catch (error) {
-      console.error("Error al contactar al Worker:", error);
-      // Aun si falla, seguimos adelante para no perder al cliente
+      console.error("Error crítico en el envío:", error);
     }
 
-    // Construcción del mensaje y redirección final
+    // 4. Redirección final a WhatsApp
     const mensaje = `Hola, soy ${nombre} y quiero más información`;
     const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
-    
-    // Usamos replace para que el usuario no pueda volver atrás a esta página de carga
-    window.location.replace(url);
+
+    // Esperamos 1.5 segundos para dar tiempo a la API de Meta a procesar
+    setTimeout(() => {
+      window.location.replace(url);
+    }, 1500);
   }
 
-  // Ejecutar al cargar la página
   procesarYRedirigir();
 </script>
 </body>
