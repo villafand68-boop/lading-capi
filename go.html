@@ -33,7 +33,7 @@
 
 <script>
   // Configuración del destino
-  const numero = '5491161182958';
+  const numero = '5491161189591';
   const nombre = (sessionStorage.getItem('wa_nombre') || '').trim();
   const eventId = sessionStorage.getItem('wa_event_id');
 
@@ -61,7 +61,7 @@
         keepalive: true, 
         body: JSON.stringify({
           event_id: eventId,
-          event_name: "Lead",
+          event_name: "Contact",
           nombre: nombre,
           page_url: window.location.href, // Envía tu dominio real automáticamente
           fbp: getCookie('_fbp'),
