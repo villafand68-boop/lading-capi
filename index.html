@@ -15,8 +15,9 @@
     function getCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();}
-
+      if (parts.length === 2) {
+        return parts.pop().split(';').shift();
+      }
       return null;
     }
 
@@ -105,7 +106,7 @@
     }
 
     .pre-input {
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       display: inline-block;
       padding: 10px 20px;
       border-radius: 6px;
@@ -125,7 +126,7 @@
       font-weight: bold;
       text-decoration: none;
       border-radius: 8px;
-      box-shadow: 0 0 25px rgba(0,255,0,0.6);
+      box-shadow: 0 0 25px rgba(0, 255, 0, 0.6);
       animation: pulse 1.5s infinite, float 3s ease-in-out infinite;
       transform: perspective(500px) rotateX(0deg) rotateY(0deg);
       transition: transform 0.3s;
@@ -141,9 +142,9 @@
     }
 
     @keyframes pulse {
-      0% { box-shadow: 0 0 15px rgba(0,255,0,0.6); }
-      50% { box-shadow: 0 0 35px rgba(0,255,0,1); }
-      100% { box-shadow: 0 0 15px rgba(0,255,0,0.6); }
+      0% { box-shadow: 0 0 15px rgba(0, 255, 0, 0.6); }
+      50% { box-shadow: 0 0 35px rgba(0, 255, 0, 1); }
+      100% { box-shadow: 0 0 15px rgba(0, 255, 0, 0.6); }
     }
 
     @keyframes float {
@@ -159,7 +160,7 @@
 
     .info {
       margin-top: 20px;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       padding: 20px;
       border-radius: 8px;
       display: inline-block;
@@ -179,7 +180,7 @@
     }
 
     .popup {
-      background: rgba(0,0,0,0.8);
+      background: rgba(0, 0, 0, 0.8);
       color: #fff;
       padding: 15px;
       border-radius: 8px;
@@ -217,7 +218,7 @@
     .active-users {
       margin-top: 20px;
       font-size: 18px;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       display: inline-block;
       padding: 8px 15px;
       border-radius: 6px;
@@ -302,7 +303,12 @@
       container.innerHTML = "";
       const popup = document.createElement("div");
       popup.className = "popup";
-      popup.innerHTML = "<span class='live-indicator'></span><span class='live-text'>EN VIVO</span> 🏆 " + winners[popupIndex] + " ganó $" + getRandomAmount().toLocaleString("es-AR");
+      popup.innerHTML =
+        "<span class='live-indicator'></span><span class='live-text'>EN VIVO</span> 🏆 " +
+        winners[popupIndex] +
+        " ganó $" +
+        getRandomAmount().toLocaleString("es-AR");
+
       container.appendChild(popup);
       popupIndex = (popupIndex + 1) % winners.length;
     }
@@ -324,7 +330,7 @@
 
       if (!whatsappBtn) return;
 
-      whatsappBtn.addEventListener('click', async function (event) {
+      whatsappBtn.addEventListener('click', function (event) {
         if (contactSent) {
           event.preventDefault();
           return;
@@ -340,9 +346,7 @@
         const fbc = localStorage.getItem('fbc') || getCookie('_fbc') || null;
 
         try {
-          fbq('track', 'Contact', {}, { eventID: eventId });
-
-          await fetch('https://api-meta.daniyons1996.workers.dev/', {
+          fetch('https://api-meta.daniyons1996.workers.dev/', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -355,14 +359,14 @@
               fbp: fbp,
               fbc: fbc
             })
+          }).catch(function (error) {
+            console.error('Error enviando Contact al worker:', error);
           });
         } catch (error) {
-          console.error('Error enviando Contact:', error);
-        } finally {
-          setTimeout(() => {
-            window.location.href = targetUrl;
-          }, 300);
+          console.error('Error general en el click:', error);
         }
+
+        window.location.href = targetUrl;
       });
     });
   </script>
