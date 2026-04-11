@@ -9,7 +9,7 @@
     const PIXEL_ID = '790645863711552';
 
     function generateEventId() {
-      return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+      return 'evt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
     }
 
     function getCookie(name) {
@@ -19,7 +19,7 @@
       return null;
     }
 
-    (function persistMetaParamsEarly() {
+    function persistMetaSignals() {
       try {
         const params = new URLSearchParams(window.location.search);
         const fbclid = params.get('fbclid');
@@ -38,31 +38,33 @@
           localStorage.setItem('fbclid', fbclid);
         }
       } catch (error) {
-        console.error('Error guardando parámetros Meta:', error);
+        console.error('Error guardando señales Meta:', error);
       }
-    })();
+    }
 
-    !function(f,b,e,v,n,t,s){
-      if(f.fbq)return;
-      n=f.fbq=function(){n.callMethod ?
-      n.callMethod.apply(n,arguments) : n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;
-      n.push=n;
-      n.loaded=!0;
-      n.version='2.0';
-      n.queue=[];
-      t=b.createElement(e);
-      t.async=!0;
-      t.src=v;
-      s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s);
+    persistMetaSignals();
+
+    !function(f,b,e,v,n,t,s) {
+      if (f.fbq) return;
+      n = f.fbq = function() {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      if (!f._fbq) f._fbq = n;
+      n.push = n;
+      n.loaded = true;
+      n.version = '2.0';
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = true;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
     }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
 
     fbq('set', 'autoConfig', false, PIXEL_ID);
     fbq('init', PIXEL_ID);
-
-    const pageEventId = generateEventId();
-    fbq('track', 'PageView', {}, { eventID: pageEventId });
+    fbq('track', 'PageView');
+    fbq('track', 'ViewContent');
   </script>
 
   <style>
@@ -74,7 +76,6 @@
       font-family: Arial, sans-serif;
       text-align: center;
       color: white;
-      background-color: #051a05;
     }
 
     .container {
@@ -82,64 +83,140 @@
     }
 
     .logo {
-      width: 280px;
-      height: 280px;
-      background: url('logo_golden_black.png') no-repeat center;
+      width: 300px;
+      height: 300px;
+      background: url('logo_golden_black.png') no-repeat center center;
       background-size: cover;
       border-radius: 50%;
-      margin: 40px auto 20px;
+      margin: 80px auto 20px auto;
       box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
     }
 
     .title {
-      font-size: 32px;
-      font-weight: bold;
-      margin: 20px 0;
+      font-size: 45px;
+      margin: 30px 0;
     }
 
     .subtitle {
-      font-size: 20px;
+      font-size: 28px;
       color: #FFA500;
-      margin-bottom: 25px;
+      margin-bottom: 40px;
     }
 
-    .zona-ingreso-v9 {
-      background: rgba(0, 0, 0, 0.6);
-      padding: 25px;
-      border-radius: 10px;
-      max-width: 420px;
-      margin: 0 auto;
-    }
-
-    input {
-      width: 100%;
-      padding: 15px;
-      font-size: 18px;
+    .pre-input {
+      background: rgba(0,0,0,0.6);
+      display: inline-block;
+      padding: 10px 20px;
       border-radius: 6px;
-      border: none;
-      margin-bottom: 15px;
-      color: black;
-      box-sizing: border-box;
+      font-size: 20px;
+      margin-bottom: 20px;
     }
 
-    .disparador-accion-x8 {
-      width: 100%;
-      padding: 18px;
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      padding: 25px 50px;
       background-color: #25D366;
       color: white;
-      font-size: 22px;
+      font-size: 32px;
       font-weight: bold;
+      text-decoration: none;
       border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
-      user-select: none;
-      box-sizing: border-box;
+      box-shadow: 0 0 25px rgba(0,255,0,0.6);
+      animation: pulse 1.5s infinite, float 3s ease-in-out infinite;
+      transform: perspective(500px) rotateX(0deg) rotateY(0deg);
+      transition: transform 0.3s;
+    }
+
+    .button:hover {
+      transform: perspective(500px) rotateX(5deg) rotateY(5deg) scale(1.05);
+    }
+
+    .button img {
+      width: 50px;
+      height: 50px;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 15px rgba(0,255,0,0.6); }
+      50% { box-shadow: 0 0 35px rgba(0,255,0,1); }
+      100% { box-shadow: 0 0 15px rgba(0,255,0,0.6); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .footer {
+      font-size: 32px;
+      margin-top: 50px;
+      color: #FF8C00;
+    }
+
+    .info {
+      margin-top: 20px;
+      background: rgba(0,0,0,0.5);
+      padding: 20px;
+      border-radius: 8px;
+      display: inline-block;
+      font-size: 22px;
+    }
+
+    .info div {
+      margin: 10px 0;
+    }
+
+    #popup-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 320px;
+      z-index: 9999;
+    }
+
+    .popup {
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 18px;
+      opacity: 0;
+      transform: translateX(-50px);
+      animation: slideIn 0.5s forwards;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .live-indicator {
+      background: red;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .live-text {
+      font-size: 14px;
+      color: red;
+      font-weight: bold;
+    }
+
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
 
     .active-users {
-      margin-top: 18px;
-      font-size: 16px;
-      background: rgba(0, 0, 0, 0.6);
+      margin-top: 20px;
+      font-size: 18px;
+      background: rgba(0,0,0,0.6);
       display: inline-block;
       padding: 8px 15px;
       border-radius: 6px;
@@ -164,46 +241,40 @@
       position: fixed;
       bottom: 5px;
       width: 100%;
-      font-size: 11px;
-      color: #ccc;
-    }
-
-    #popup-container {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      width: 300px;
-      z-index: 9999;
-    }
-
-    .popup {
-      background: rgba(0, 0, 0, 0.85);
-      color: #fff;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border-left: 4px solid #25D366;
+      text-align: center;
+      font-size: 12px;
+      color: white;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="logo"></div>
-    <div class="title">🍀 UNITE A LOS MEJORES 🍀</div>
-    <div class="subtitle">Ingresá tu nombre y empezá ahora</div>
+    <div class="title">🍀 UNITE A LOS QUE ESTÁN GANANDO 🍀</div>
+    <div class="subtitle">👇 Tocá el botón y comunicate ahora mismo 👇</div>
+    <div class="pre-input">👉 Toca el botón para continuar</div>
 
-    <div class="zona-ingreso-v9">
-      <input type="text" id="nombre_usuario" placeholder="Tu nombre" />
-      <div id="btn-envio-camuflado" class="disparador-accion-x8">QUIERO CONTINUAR</div>
-    </div>
+    <a
+      href="https://api.whatsapp.com/send?phone=541161182453&text=Hola%20quiero%20m%C3%A1s%20informaci%C3%B3n"
+      class="button"
+      id="whatsappButton"
+      rel="noopener noreferrer"
+    >
+      <img src="whatsapp-icon.png" alt="WhatsApp">
+      Contactar por WhatsApp
+    </a>
 
     <div class="active-users">
       <span class="green-dot"></span>
-      Usuarios activos: <span id="user-count">87.567</span>
+      Usuarios activos: <span id="user-count">87567</span>
+    </div>
+
+    <div class="footer">🔥 ACTIVOS 24/7 - PAGOS SIN LÍMITES 🔥</div>
+
+    <div class="info">
+      <div>🎧 Atención 24/7</div>
+      <div>💸 Pagos al instante</div>
+      <div>🔞 Jugá responsable (+18)</div>
     </div>
   </div>
 
@@ -211,60 +282,88 @@
   <footer>Only for users aged 18+. No real money can be won.</footer>
 
   <script>
-    const disparador = document.getElementById('btn-envio-camuflado');
-    let processingClick = false;
+    const winners = [
+      "Laura Manzilla", "Pedro Torres", "Mariana López", "Carlos Gómez",
+      "Lucía Fernández", "Martín Pereyra", "Sofía Martínez", "Juan Herrera",
+      "Ana Rodríguez", "Pablo Domínguez", "Camila Suárez", "Gonzalo Molina",
+      "Valentina Ortega", "Emiliano Castro", "Carla Benítez", "Javier Figueroa",
+      "Micaela Aguirre", "Andrés Navarro", "Julieta Ríos", "Federico Romero"
+    ];
 
-    disparador.addEventListener('pointerdown', function () {
-      if (processingClick) return;
-
-      const nombreInput = document.getElementById('nombre_usuario');
-      const nombreValue = nombreInput.value.trim();
-
-      if (!nombreValue) {
-        nombreInput.style.border = '2px solid red';
-        nombreInput.focus();
-        return;
-      }
-
-      processingClick = true;
-
-      const eventId = generateEventId();
-      sessionStorage.setItem('wa_event_id', eventId);
-      sessionStorage.setItem('wa_nombre', nombreValue);
-
-      const fbp = getCookie('_fbp');
-      if (fbp) {
-        localStorage.setItem('fbp', fbp);
-      }
-
-      const currentQuery = window.location.search || '';
-      window.location.href = 'go.html' + currentQuery;
-    });
-
-    const winners = ['Laura M.', 'Pedro T.', 'Mariana L.', 'Carlos G.', 'Lucía F.', 'Martín P.'];
-    let winnerIndex = 0;
-
-    function showPopup() {
-      const container = document.getElementById('popup-container');
-      container.innerHTML = '';
-
-      const popup = document.createElement('div');
-      popup.className = 'popup';
-
-      const amount = Math.floor(Math.random() * (700000 - 50000 + 1)) + 50000;
-      popup.innerHTML = `🏆 ${winners[winnerIndex]} acaba de ganar $${amount.toLocaleString('es-AR')}`;
-
-      container.appendChild(popup);
-      winnerIndex = (winnerIndex + 1) % winners.length;
+    function getRandomAmount() {
+      return Math.floor(Math.random() * (700000 - 50000 + 1)) + 50000;
     }
 
-    setInterval(showPopup, 6000);
+    let popupIndex = 0;
+
+    function showPopup() {
+      const container = document.getElementById("popup-container");
+      container.innerHTML = "";
+      const popup = document.createElement("div");
+      popup.className = "popup";
+      popup.innerHTML = "<span class='live-indicator'></span><span class='live-text'>EN VIVO</span> 🏆 " + winners[popupIndex] + " ganó $" + getRandomAmount().toLocaleString("es-AR");
+      container.appendChild(popup);
+      popupIndex = (popupIndex + 1) % winners.length;
+    }
+
+    setInterval(showPopup, 5000);
+    showPopup();
 
     let userCount = 87567;
     setInterval(() => {
-      userCount += Math.floor(Math.random() * 3);
-      document.getElementById('user-count').innerText = userCount.toLocaleString('es-AR');
-    }, 4000);
+      userCount += 3;
+      document.getElementById("user-count").innerText = userCount.toLocaleString("es-AR");
+    }, 5000);
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const whatsappBtn = document.getElementById('whatsappButton');
+      let contactSent = false;
+
+      if (!whatsappBtn) return;
+
+      whatsappBtn.addEventListener('click', async function (event) {
+        if (contactSent) {
+          event.preventDefault();
+          return;
+        }
+
+        contactSent = true;
+        event.preventDefault();
+
+        const targetUrl = whatsappBtn.href;
+        const eventId = generateEventId();
+
+        const fbp = localStorage.getItem('fbp') || getCookie('_fbp') || null;
+        const fbc = localStorage.getItem('fbc') || getCookie('_fbc') || null;
+
+        try {
+          fbq('track', 'Contact', {}, { eventID: eventId });
+
+          await fetch('https://api-meta.daniyons1996.workers.dev/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            keepalive: true,
+            body: JSON.stringify({
+              event_name: 'Contact',
+              event_id: eventId,
+              page_url: window.location.href,
+              fbp: fbp,
+              fbc: fbc
+            })
+          });
+        } catch (error) {
+          console.error('Error enviando Contact:', error);
+        } finally {
+          setTimeout(() => {
+            window.location.href = targetUrl;
+          }, 300);
+        }
+      });
+    });
   </script>
 </body>
 </html>
