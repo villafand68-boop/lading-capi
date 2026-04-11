@@ -19,66 +19,177 @@
       return null;
     }
 
-    // Guardar fbclid / fbc / fbp desde la primera entrada
-    (function persistMetaIds() {
+    (function persistMetaParamsEarly() {
       try {
         const params = new URLSearchParams(window.location.search);
         const fbclid = params.get('fbclid');
 
-        if (fbclid) {
+        const cookieFbp = getCookie('_fbp');
+        if (cookieFbp) {
+          localStorage.setItem('fbp', cookieFbp);
+        }
+
+        const cookieFbc = getCookie('_fbc');
+        if (cookieFbc) {
+          localStorage.setItem('fbc', cookieFbc);
+        } else if (fbclid) {
+          const generatedFbc = `fb.1.${Date.now()}.${fbclid}`;
+          localStorage.setItem('fbc', generatedFbc);
           localStorage.setItem('fbclid', fbclid);
-
-          // Si no existe fbc en cookie, lo construimos
-          const existingFbc = getCookie('_fbc');
-          const fbc = existingFbc || `fb.1.${Date.now()}.${fbclid}`;
-          localStorage.setItem('fbc', fbc);
         }
-
-        const fbp = getCookie('_fbp');
-        if (fbp) {
-          localStorage.setItem('fbp', fbp);
-        }
-      } catch (e) {
-        console.error('No se pudieron persistir los identificadores Meta:', e);
+      } catch (error) {
+        console.error('Error guardando parámetros Meta:', error);
       }
     })();
 
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=true;
-    t.src=v;s=b.getElementsByTagName(e);
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
+    !function(f,b,e,v,n,t,s){
+      if(f.fbq)return;
+      n=f.fbq=function(){n.callMethod ?
+      n.callMethod.apply(n,arguments) : n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;
+      n.push=n;
+      n.loaded=!0;
+      n.version='2.0';
+      n.queue=[];
+      t=b.createElement(e);
+      t.async=!0;
+      t.src=v;
+      s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s);
+    }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
 
     fbq('set', 'autoConfig', false, PIXEL_ID);
-    fbq('set', 'agent', 'plchatgptfix', PIXEL_ID);
     fbq('init', PIXEL_ID);
 
-    // Solo PageView en navegador
     const pageEventId = generateEventId();
     fbq('track', 'PageView', {}, { eventID: pageEventId });
   </script>
 
   <style>
-    body { margin:0; padding:0; background:url('imagen verde.png') no-repeat center center fixed; background-size:cover; font-family:Arial,sans-serif; text-align:center; color:white; background-color:#051a05; }
-    .container { padding:50px 20px; }
-    .logo{ width:280px; height:280px; background:url('logo_golden_black.png') no-repeat center; background-size:cover; border-radius:50%; margin:40px auto 20px; box-shadow:0 0 25px rgba(255,215,0,.6); }
-    .title { font-size:32px; font-weight:bold; margin:20px 0; }
-    .subtitle { font-size:20px; color:#FFA500; margin-bottom:25px; }
-    .zona-ingreso-v9 { background:rgba(0,0,0,.6); padding:25px; border-radius:10px; max-width:420px; margin:0 auto; }
-    input { width:100%; padding:15px; font-size:18px; border-radius:6px; border:none; margin-bottom:15px; color: black; }
-    .disparador-accion-x8 { width:100%; padding:18px; background-color:#25D366; color:white; font-size:22px; font-weight:bold; border-radius:8px; cursor:pointer; box-shadow:0 0 20px rgba(0,255,0,0.4); user-select:none; }
-    .active-users { margin-top:18px; font-size:16px; background:rgba(0,0,0,.6); display:inline-block; padding:8px 15px; border-radius:6px; }
-    .green-dot { background:#00FF00; width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px; animation:blink 1s infinite; }
-    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.5; } }
-    footer { position:fixed; bottom:5px; width:100%; font-size:11px; color:#ccc; }
-    #popup-container { position:fixed; bottom:20px; left:20px; width:300px; z-index:9999; }
-    .popup { background:rgba(0,0,0,0.85); color:#fff; padding:12px; border-radius:8px; margin-bottom:10px; font-size:14px; display:flex; align-items:center; gap:10px; border-left: 4px solid #25D366; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('imagen verde.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      color: white;
+      background-color: #051a05;
+    }
+
+    .container {
+      padding: 50px 20px;
+    }
+
+    .logo {
+      width: 280px;
+      height: 280px;
+      background: url('logo_golden_black.png') no-repeat center;
+      background-size: cover;
+      border-radius: 50%;
+      margin: 40px auto 20px;
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+    }
+
+    .title {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: #FFA500;
+      margin-bottom: 25px;
+    }
+
+    .zona-ingreso-v9 {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 25px;
+      border-radius: 10px;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      font-size: 18px;
+      border-radius: 6px;
+      border: none;
+      margin-bottom: 15px;
+      color: black;
+      box-sizing: border-box;
+    }
+
+    .disparador-accion-x8 {
+      width: 100%;
+      padding: 18px;
+      background-color: #25D366;
+      color: white;
+      font-size: 22px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+      user-select: none;
+      box-sizing: border-box;
+    }
+
+    .active-users {
+      margin-top: 18px;
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.6);
+      display: inline-block;
+      padding: 8px 15px;
+      border-radius: 6px;
+    }
+
+    .green-dot {
+      background: #00FF00;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    footer {
+      position: fixed;
+      bottom: 5px;
+      width: 100%;
+      font-size: 11px;
+      color: #ccc;
+    }
+
+    #popup-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 300px;
+      z-index: 9999;
+    }
+
+    .popup {
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid #25D366;
+    }
   </style>
 </head>
-
 <body>
   <div class="container">
     <div class="logo"></div>
@@ -87,9 +198,7 @@
 
     <div class="zona-ingreso-v9">
       <input type="text" id="nombre_usuario" placeholder="Tu nombre" />
-      <div id="btn-envio-camuflado" class="disparador-accion-x8">
-        QUIERO CONTINUAR
-      </div>
+      <div id="btn-envio-camuflado" class="disparador-accion-x8">QUIERO CONTINUAR</div>
     </div>
 
     <div class="active-users">
@@ -103,47 +212,48 @@
 
   <script>
     const disparador = document.getElementById('btn-envio-camuflado');
-    let redirigiendo = false;
+    let processingClick = false;
 
     disparador.addEventListener('pointerdown', function () {
-      if (redirigiendo) return;
+      if (processingClick) return;
 
       const nombreInput = document.getElementById('nombre_usuario');
       const nombreValue = nombreInput.value.trim();
 
       if (!nombreValue) {
-        nombreInput.style.border = "2px solid red";
+        nombreInput.style.border = '2px solid red';
         nombreInput.focus();
         return;
       }
 
-      redirigiendo = true;
+      processingClick = true;
 
       const eventId = generateEventId();
       sessionStorage.setItem('wa_event_id', eventId);
       sessionStorage.setItem('wa_nombre', nombreValue);
 
-      // Refresca fbp por si Meta ya dejó cookie disponible
       const fbp = getCookie('_fbp');
       if (fbp) {
         localStorage.setItem('fbp', fbp);
       }
 
-      // Mantener querystring por si viene fbclid en la URL original
-      const qs = window.location.search || '';
-      window.location.href = 'go.html' + qs;
+      const currentQuery = window.location.search || '';
+      window.location.href = 'go.html' + currentQuery;
     });
 
-    const winners = ["Laura M.","Pedro T.","Mariana L.","Carlos G.","Lucía F.","Martín P."];
+    const winners = ['Laura M.', 'Pedro T.', 'Mariana L.', 'Carlos G.', 'Lucía F.', 'Martín P.'];
     let winnerIndex = 0;
 
     function showPopup() {
-      const container = document.getElementById("popup-container");
-      container.innerHTML = "";
-      const popup = document.createElement("div");
-      popup.className = "popup";
+      const container = document.getElementById('popup-container');
+      container.innerHTML = '';
+
+      const popup = document.createElement('div');
+      popup.className = 'popup';
+
       const amount = Math.floor(Math.random() * (700000 - 50000 + 1)) + 50000;
-      popup.innerHTML = `🏆 ${winners[winnerIndex]} acaba de ganar $${amount.toLocaleString("es-AR")}`;
+      popup.innerHTML = `🏆 ${winners[winnerIndex]} acaba de ganar $${amount.toLocaleString('es-AR')}`;
+
       container.appendChild(popup);
       winnerIndex = (winnerIndex + 1) % winners.length;
     }
@@ -153,7 +263,7 @@
     let userCount = 87567;
     setInterval(() => {
       userCount += Math.floor(Math.random() * 3);
-      document.getElementById("user-count").innerText = userCount.toLocaleString("es-AR");
+      document.getElementById('user-count').innerText = userCount.toLocaleString('es-AR');
     }, 4000);
   </script>
 </body>

@@ -15,14 +15,16 @@
       height: 100vh;
       margin: 0;
     }
+
     .loader {
-      border: 4px solid rgba(255,255,255,0.1);
+      border: 4px solid rgba(255, 255, 255, 0.1);
       border-left-color: #25D366;
       border-radius: 50%;
       width: 40px;
       height: 40px;
       animation: spin 1s linear infinite;
     }
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -43,36 +45,35 @@
       return null;
     }
 
-    function getFbc() {
-      // 1) localStorage
-      const storedFbc = localStorage.getItem('fbc');
-      if (storedFbc) return storedFbc;
+    function getFbp() {
+      const fromStorage = localStorage.getItem('fbp');
+      if (fromStorage) return fromStorage;
 
-      // 2) cookie
-      const cookieFbc = getCookie('_fbc');
-      if (cookieFbc) return cookieFbc;
-
-      // 3) querystring
-      const urlParams = new URLSearchParams(window.location.search);
-      const fbclid = urlParams.get('fbclid');
-      if (fbclid) {
-        const generatedFbc = `fb.1.${Date.now()}.${fbclid}`;
-        localStorage.setItem('fbclid', fbclid);
-        localStorage.setItem('fbc', generatedFbc);
-        return generatedFbc;
+      const fromCookie = getCookie('_fbp');
+      if (fromCookie) {
+        localStorage.setItem('fbp', fromCookie);
+        return fromCookie;
       }
 
       return null;
     }
 
-    function getFbp() {
-      const storedFbp = localStorage.getItem('fbp');
-      if (storedFbp) return storedFbp;
+    function getFbc() {
+      const fromStorage = localStorage.getItem('fbc');
+      if (fromStorage) return fromStorage;
 
-      const cookieFbp = getCookie('_fbp');
-      if (cookieFbp) {
-        localStorage.setItem('fbp', cookieFbp);
-        return cookieFbp;
+      const fromCookie = getCookie('_fbc');
+      if (fromCookie) {
+        localStorage.setItem('fbc', fromCookie);
+        return fromCookie;
+      }
+
+      const fbclid = new URLSearchParams(window.location.search).get('fbclid');
+      if (fbclid) {
+        const generatedFbc = `fb.1.${Date.now()}.${fbclid}`;
+        localStorage.setItem('fbclid', fbclid);
+        localStorage.setItem('fbc', generatedFbc);
+        return generatedFbc;
       }
 
       return null;
@@ -86,16 +87,18 @@
     async function sendContactEvent() {
       const payload = {
         event_id: eventId,
-        event_name: "",
+        event_name: '',
         nombre: nombre,
         page_url: window.location.href,
         fbp: getFbp(),
         fbc: getFbc()
       };
 
-      return fetch("https://api-meta.daniyons1996.workers.dev/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      return fetch('https://api-meta.daniyons1996.workers.dev/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         keepalive: true,
         body: JSON.stringify(payload)
       });
@@ -110,9 +113,8 @@
       try {
         await sendContactEvent();
       } catch (error) {
-        console.error("Error al contactar al Worker:", error);
+        console.error('Error al contactar al Worker:', error);
       } finally {
-        // Limpieza mínima para no reciclar el mismo event_id en otra visita
         sessionStorage.removeItem('wa_event_id');
         sessionStorage.removeItem('wa_nombre');
 
