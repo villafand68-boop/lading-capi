@@ -31,60 +31,98 @@
 <body>
   <div class="loader"></div>
 
-<script>
-  // Configuración del destino
-  const numero = '5491161182453';
-  const nombre = (sessionStorage.getItem('wa_nombre') || '').trim();
-  const eventId = sessionStorage.getItem('wa_event_id');
+  <script>
+    const numero = '5491161182453';
+    const nombre = (sessionStorage.getItem('wa_nombre') || '').trim();
+    const eventId = sessionStorage.getItem('wa_event_id');
 
-  // Función corregida para obtener cookies de Meta (_fbp, _fbc)
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-  }
-
-  async function procesarYRedirigir() {
-    // Si no hay datos, volvemos al inicio
-    if (!nombre || !eventId) {
-      window.location.href = 'index.html';
-      return;
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
     }
 
-    try {
-      // Enviamos el evento al Worker de Cloudflare
-      // keepalive: true asegura que la petición termine aunque el usuario salga de la página
-      await fetch("https://api-meta.daniyons1996.workers.dev/", {
+    function getFbc() {
+      // 1) localStorage
+      const storedFbc = localStorage.getItem('fbc');
+      if (storedFbc) return storedFbc;
+
+      // 2) cookie
+      const cookieFbc = getCookie('_fbc');
+      if (cookieFbc) return cookieFbc;
+
+      // 3) querystring
+      const urlParams = new URLSearchParams(window.location.search);
+      const fbclid = urlParams.get('fbclid');
+      if (fbclid) {
+        const generatedFbc = `fb.1.${Date.now()}.${fbclid}`;
+        localStorage.setItem('fbclid', fbclid);
+        localStorage.setItem('fbc', generatedFbc);
+        return generatedFbc;
+      }
+
+      return null;
+    }
+
+    function getFbp() {
+      const storedFbp = localStorage.getItem('fbp');
+      if (storedFbp) return storedFbp;
+
+      const cookieFbp = getCookie('_fbp');
+      if (cookieFbp) {
+        localStorage.setItem('fbp', cookieFbp);
+        return cookieFbp;
+      }
+
+      return null;
+    }
+
+    function buildWhatsappUrl() {
+      const mensaje = `Hola, soy ${nombre} y quiero más información`;
+      return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+    }
+
+    async function sendContactEvent() {
+      const payload = {
+        event_id: eventId,
+        event_name: "",
+        nombre: nombre,
+        page_url: window.location.href,
+        fbp: getFbp(),
+        fbc: getFbc()
+      };
+
+      return fetch("https://api-meta.daniyons1996.workers.dev/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        keepalive: true, 
-        body: JSON.stringify({
-          event_id: eventId,
-          event_name: "Contact",
-          nombre: nombre,
-          page_url: window.location.href, // Envía tu dominio real automáticamente
-          fbp: getCookie('_fbp'),
-          fbc: getCookie('_fbc')
-        })
+        keepalive: true,
+        body: JSON.stringify(payload)
       });
-      console.log("Evento enviado al servidor");
-    } catch (error) {
-      console.error("Error al contactar al Worker:", error);
     }
 
-    // Preparación del enlace de WhatsApp
-    const mensaje = `Hola, soy ${nombre} y quiero más información`;
-    const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+    async function procesarYRedirigir() {
+      if (!nombre || !eventId) {
+        window.location.href = 'index.html';
+        return;
+      }
 
-    // Esperamos 1.2 segundos para que el servidor de Meta procese el evento
-    setTimeout(() => {
-      window.location.replace(url);
-    }, 1200);
-  }
+      try {
+        await sendContactEvent();
+      } catch (error) {
+        console.error("Error al contactar al Worker:", error);
+      } finally {
+        // Limpieza mínima para no reciclar el mismo event_id en otra visita
+        sessionStorage.removeItem('wa_event_id');
+        sessionStorage.removeItem('wa_nombre');
 
-  // Iniciar el proceso
-  procesarYRedirigir();
-</script>
+        setTimeout(() => {
+          window.location.replace(buildWhatsappUrl());
+        }, 800);
+      }
+    }
+
+    procesarYRedirigir();
+  </script>
 </body>
 </html>
